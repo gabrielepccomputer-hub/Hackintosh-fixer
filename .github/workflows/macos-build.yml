@@ -1,0 +1,35 @@
+name: macOS build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build Swift package
+    runs-on: macos-26
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Show Apple toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+
+      - name: Build for Intel Macs
+        run: bash scripts/package-app.sh
+
+      - name: Upload macOS app
+        uses: actions/upload-artifact@v4
+        with:
+          name: HackintoshFixer-macOS-Intel
+          path: .build/packaged/HackintoshFixer.app
+          if-no-files-found: error
