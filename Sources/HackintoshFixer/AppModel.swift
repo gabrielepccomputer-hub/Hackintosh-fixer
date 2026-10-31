@@ -36,22 +36,34 @@ final class AppModel: ObservableObject {
     init() {
         let defaults = UserDefaults.standard
         let storedLanguage = defaults.string(forKey: "app.language") ?? AppLanguage.english.rawValue
-        language = AppLanguage(rawValue: storedLanguage) ?? .english
+        let initialLanguage = AppLanguage(rawValue: storedLanguage) ?? .english
         let storedProvider = defaults.string(forKey: "ai.provider") ?? AIProvider.gemini.rawValue
-        provider = AIProvider(rawValue: storedProvider) ?? .gemini
+        let initialProvider = AIProvider(rawValue: storedProvider) ?? .gemini
         let savedModel = defaults.string(forKey: "ai.model")
-        modelName = savedModel.flatMap { provider.availableModels.contains($0) ? $0 : nil } ?? provider.defaultModel
-        apiKey = KeychainStore.read(account: provider.keychainAccount)
-        computerModel = defaults.string(forKey: "pc.computerModel") ?? ""
-        motherboardModel = defaults.string(forKey: "pc.motherboardModel") ?? ""
-        macOSVersion = defaults.string(forKey: "pc.macOSVersion") ?? ""
-        otherHardwareInfo = defaults.string(forKey: "pc.otherHardwareInfo") ?? ""
-        hasCompletedOnboarding = defaults.bool(forKey: "setup.completed")
-        if hasCompletedOnboarding {
+        let initialModel = savedModel.flatMap {
+            initialProvider.availableModels.contains($0) ? $0 : nil
+        } ?? initialProvider.defaultModel
+        let initialAPIKey = KeychainStore.read(account: initialProvider.keychainAccount)
+        let initialComputerModel = defaults.string(forKey: "pc.computerModel") ?? ""
+        let initialMotherboardModel = defaults.string(forKey: "pc.motherboardModel") ?? ""
+        let initialMacOSVersion = defaults.string(forKey: "pc.macOSVersion") ?? ""
+        let initialOtherHardwareInfo = defaults.string(forKey: "pc.otherHardwareInfo") ?? ""
+        let completedOnboarding = defaults.bool(forKey: "setup.completed")
+
+        language = initialLanguage
+        provider = initialProvider
+        modelName = initialModel
+        apiKey = initialAPIKey
+        computerModel = initialComputerModel
+        motherboardModel = initialMotherboardModel
+        macOSVersion = initialMacOSVersion
+        otherHardwareInfo = initialOtherHardwareInfo
+        hasCompletedOnboarding = completedOnboarding
+        if completedOnboarding {
             chatMessages = [
                 ChatMessage(
                     role: .assistant,
-                    text: AppStrings.text("chat.welcome", language: language)
+                    text: AppStrings.text("chat.welcome", language: initialLanguage)
                 )
             ]
         }
