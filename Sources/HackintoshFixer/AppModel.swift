@@ -490,13 +490,13 @@ final class AppModel: ObservableObject {
             let italian = language == .italian
             switch self {
             case .dependencyCycle:
-                italian ? "Il catalogo dei kext contiene una dipendenza circolare." : "The kext catalog contains a dependency cycle."
+                return italian ? "Il catalogo dei kext contiene una dipendenza circolare." : "The kext catalog contains a dependency cycle."
             case .disabledKext(let name):
-                italian ? "\(name) è presente ma disattivato in OpenCore. Attivalo prima di continuare." : "\(name) is present but disabled in OpenCore. Enable it before continuing."
+                return italian ? "\(name) è presente ma disattivato in OpenCore. Attivalo prima di continuare." : "\(name) is present but disabled in OpenCore. Enable it before continuing."
             case .unsupportedDependency(let name):
-                italian ? "Dipendenza non inclusa nel catalogo supportato: \(name)." : "Dependency is not in the supported catalog: \(name)."
+                return italian ? "Dipendenza non inclusa nel catalogo supportato: \(name)." : "Dependency is not in the supported catalog: \(name)."
             case .unsupportedRecommendation(let name):
-                italian ? "Suggerimento fuori dal catalogo ufficiale approvato: \(name)." : "Recommendation is outside the approved official catalog: \(name)."
+                return italian ? "Suggerimento fuori dal catalogo ufficiale approvato: \(name)." : "Recommendation is outside the approved official catalog: \(name)."
             }
         }
     }

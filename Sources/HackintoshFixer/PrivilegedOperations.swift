@@ -21,12 +21,16 @@ enum PrivilegedOperations {
             guard process.terminationStatus == 0 else {
                 let details = String(data: data, encoding: .utf8)?
                     .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-                throw AuthorizationError.failed(details.isEmpty ? "Autorizzazione annullata o operazione non riuscita." : details)
+                throw AuthorizationError(
+                    failed: details.isEmpty
+                        ? "Autorizzazione annullata o operazione non riuscita."
+                        : details
+                )
             }
         } catch let error as AuthorizationError {
             throw error
         } catch {
-            throw AuthorizationError.failed(error.localizedDescription)
+            throw AuthorizationError(failed: error.localizedDescription)
         }
     }
 
