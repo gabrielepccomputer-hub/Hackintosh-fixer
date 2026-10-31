@@ -8,7 +8,7 @@ TRIPLE="${SWIFT_TRIPLE:-x86_64-apple-macosx13.0}"
 CONFIGURATION="${CONFIGURATION:-release}"
 APP_NAME="HackintoshFixer"
 APP_DIR="$ROOT_DIR/.build/packaged/$APP_NAME.app"
-ARCHIVE="$ROOT_DIR/.build/packaged/$APP_NAME-macOS-Intel.zip"
+DMG="$ROOT_DIR/.build/packaged/$APP_NAME-macOS-Intel.dmg"
 RESOURCES_DIR="$APP_DIR/Contents/Resources"
 ICON_SET="$ROOT_DIR/Assets.xcassets/AppIcon.appiconset"
 
@@ -20,12 +20,13 @@ fi
 swift build --configuration "$CONFIGURATION" --triple "$TRIPLE"
 BIN_DIR="$(swift build --configuration "$CONFIGURATION" --triple "$TRIPLE" --show-bin-path)"
 
+mkdir -p "$ROOT_DIR/.build/packaged"
 rm -rf "$APP_DIR"
 mkdir -p "$APP_DIR/Contents/MacOS" "$RESOURCES_DIR" "$ICON_SET"
 cp "$BIN_DIR/$APP_NAME" "$APP_DIR/Contents/MacOS/$APP_NAME"
 cp "$ROOT_DIR/Resources/Info.plist" "$APP_DIR/Contents/Info.plist"
 
-trap 'rm -f "$ICON_SET/AppIcon.png"' EXIT
+trap 'rm -f "$ICON_SET/AppIcon.png"; if [[ -n "${STAGING_DIR:-}" ]]; then rm -rf "$STAGING_DIR"; fi' EXIT
 sips -s format png -z 1024 1024 "$ROOT_DIR/icon.png" --out "$ICON_SET/AppIcon.png" >/dev/null
 actool "$ROOT_DIR/Assets.xcassets" \
     --app-icon AppIcon \
@@ -38,6 +39,14 @@ if [[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundlePackageType' "$APP_DIR/Conte
     exit 1
 fi
 
-ditto -c -k --sequesterRsrc --keepParent "$APP_DIR" "$ARCHIVE"
+STAGING_DIR="$(mktemp -d "$ROOT_DIR/.build/packaged/.dmg-staging.XXXXXX")"
+ditto "$APP_DIR" "$STAGING_DIR/$APP_NAME.app"
+ln -s /Applications "$STAGING_DIR/Applications"
+hdiutil create \
+    -volname "Hackintosh Fixer" \
+    -srcfolder "$STAGING_DIR" \
+    -ov \
+    -format UDZO \
+    "$DMG"
 echo "Created macOS application: $APP_DIR"
-echo "Created distributable archive: $ARCHIVE"
+echo "Created drag-and-drop installer: $DMG"
