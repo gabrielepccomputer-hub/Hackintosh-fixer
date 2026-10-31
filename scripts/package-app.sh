@@ -8,6 +8,7 @@ TRIPLE="${SWIFT_TRIPLE:-x86_64-apple-macosx13.0}"
 CONFIGURATION="${CONFIGURATION:-release}"
 APP_NAME="HackintoshFixer"
 APP_DIR="$ROOT_DIR/.build/packaged/$APP_NAME.app"
+ARCHIVE="$ROOT_DIR/.build/packaged/$APP_NAME-macOS-Intel.zip"
 RESOURCES_DIR="$APP_DIR/Contents/Resources"
 ICON_SET="$ROOT_DIR/Assets.xcassets/AppIcon.appiconset"
 
@@ -32,4 +33,11 @@ actool "$ROOT_DIR/Assets.xcassets" \
     --minimum-deployment-target 13.0 \
     --compile "$RESOURCES_DIR"
 
-echo "Created $APP_DIR"
+if [[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundlePackageType' "$APP_DIR/Contents/Info.plist")" != "APPL" ]]; then
+    echo "Packaged bundle is not a macOS application." >&2
+    exit 1
+fi
+
+ditto -c -k --sequesterRsrc --keepParent "$APP_DIR" "$ARCHIVE"
+echo "Created macOS application: $APP_DIR"
+echo "Created distributable archive: $ARCHIVE"

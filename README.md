@@ -36,6 +36,6 @@ Dalla cartella del progetto:
 swift run
 ```
 
-La build crea `HackintoshFixer.app` per Mac Intel usando `icon.png` come icona. GitHub Actions verifica e pubblica il bundle `.app` come artifact su push, pull request e avvio manuale.
+La build crea `HackintoshFixer.app` (un'applicazione macOS, `CFBundlePackageType=APPL`, non un kext) per Mac Intel usando `icon.png` come icona, poi la distribuisce come archivio ZIP installabile/spostabile nella cartella Applicazioni. GitHub Actions pubblica l'archivio dell'app come artifact su push, pull request e avvio manuale.
 
 Al primo avvio inserisci il modello del PC/build o della scheda madre, la versione macOS e gli altri dettagli hardware; poi scegli provider e modello e inserisci la chiave API. Si apre la chat bilingue: invia una richiesta per avviare la scansione dei componenti e ricevere un'analisi che include il profilo salvato. Seleziona il volume EFI con `EFI/OC/config.plist` per abilitare le modifiche OpenCore. Seleziona i kext consigliati, scaricali e controlla versioni e dipendenze; quindi scegli **Autorizza e installa** e approva il prompt macOS. In Impostazioni puoi modificare successivamente lingua, dettagli del PC, provider, modello e chiave API.
